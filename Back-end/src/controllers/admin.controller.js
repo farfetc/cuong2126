@@ -21,8 +21,6 @@ const uploadProductAvt = async (avtFile, productCode) => {
   }
 };
 
-
-
 // fn: upload product desc photo to cloudinary
 const uploadDescProductPhoto = async (desc, productCode) => {
   try {
@@ -43,8 +41,7 @@ const uploadDescProductPhoto = async (desc, productCode) => {
 // api: Thêm sản phẩm
 const addProduct = async (req, res, next) => {
   try {
-
-    const { product,  desc } = req.body;
+    const { product, desc } = req.body;
 
     const { type, avatar, code, ...productRest } = product;
 
@@ -61,7 +58,7 @@ const addProduct = async (req, res, next) => {
     let productDesc = desc
       ? await uploadDescProductPhoto(desc.detailDesList, code)
       : null;
-      console.log("Baotung");
+    console.log('Baotung');
     //Tạo sản phẩm mới
     const newProduct = await ProductModel.create({
       type,
@@ -81,7 +78,7 @@ const addProduct = async (req, res, next) => {
             desc: productDesc,
           })
         : null;
-        return res.status(200).json({ message: 'Thêm sản phẩm thành công' });
+      return res.status(200).json({ message: 'Thêm sản phẩm thành công' });
     }
   } catch (error) {
     return res.status(409).json({ message: 'Lỗi đường truyền, thử lại' });
@@ -113,7 +110,6 @@ const removeProduct = async (req, res, next) => {
       await ProductModel.deleteOne({ _id: id });
       // xoá bài mô tả sản phẩm
       await ProductDescModel.deleteOne({ idProduct: id });
-
     }
     return res.status(200).json({ message: 'success' });
   } catch (error) {
@@ -164,6 +160,51 @@ const getUserAdminList = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     return res.status(400).json({ message: 'failed' });
+  }
+};
+
+// api: xoá 1 user admin
+const createUserAdmin = async (req, res, next) => {
+  try {
+    const { userName, age } = req.body;
+    const _adminUser = await AdminModel.find({ userName: userName });
+    if (_adminUser.length) {
+      return res.status(400).json({ message: 'Tên người dùng đã tồn tại' });
+    }
+
+    await AdminModel.create({
+      ...req.body,
+      age: Number(age),
+    });
+    return res.status(200).json({ message: 'Tạo tài khoản thành công' });
+  } catch (error) {
+    return res.status(400).json({ message: 'Tạo tài khoản thất bại' });
+  }
+};
+
+// api: cập nhật trạng thái đơn hàng
+const updateUserAdmin = async (req, res, next) => {
+  try {
+    const { id, userAdmin } = req.body;
+    const response = await AdminModel.updateOne({ _id: id }, { ...userAdmin });
+    if (response) return res.status(200).json({});
+  } catch (error) {
+    return res.status(400).json({ error });
+    // return res.status(400).json({ message: 'Chỉnh sửa thất bại' });
+  }
+};
+
+// api: xoá 1 user admin
+const delUserAdmin = async (req, res, next) => {
+  try {
+    const { userId } = req.query;
+    const _adminUser = await AdminModel.findById(userId);
+    if (_adminUser) {
+      await AdminModel.deleteOne({ _id: userId });
+      return res.status(200).json({});
+    }
+  } catch (error) {
+    return res.status(409).json({});
   }
 };
 
@@ -229,4 +270,7 @@ module.exports = {
   delCustomer,
   getOrderList,
   postUpdateOrderStatus,
+  delUserAdmin,
+  createUserAdmin,
+  updateUserAdmin,
 };

@@ -3,10 +3,7 @@ import queryString from 'query-string';
 
 //get env mode
 const env = process.env.NODE_ENV;
-const baseURL =
-  !env || env === 'development'
-    ? process.env.REACT_APP_API_URL_LOCAL
-    : process.env.REACT_APP_API_URL;
+const baseURL = 'http://localhost:3001';
 
 //Set up default config for http request
 // Tao ra 1 object dung chung cho moi noi can import no

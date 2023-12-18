@@ -35,6 +35,12 @@ const addressApi = {
     return axiosClient.post(url, { userId, newAddress });
   },
 
+  // api: Chỉnh sửa địa chỉ nhận hàng
+  updateDeliveryAddress: (userId, body, index) => {
+    const url = ADDRESS_API_ENDPOINT + '/update-delivery';
+    return axiosClient.put(url, body, { params: { userId, item: index } });
+  },
+
   // api: Xoá 1 địa chỉ giao nhận
   delDeliveryAddress: (userId, item) => {
     const url = ADDRESS_API_ENDPOINT + '/delivery';

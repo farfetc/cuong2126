@@ -41,6 +41,24 @@ const adminApi = {
     return axiosClient.get(url);
   },
 
+  // fn: tạo mới admin user
+  postUserAdmin: (payload) => {
+    const url = ADMIN_API_ENDPOINT + '/users';
+    return axiosClient.post(url, payload);
+  },
+
+  // fn: chỉnh sửa admin user
+  putUserAdmin: (payload) => {
+    const url = ADMIN_API_ENDPOINT + '/users';
+    return axiosClient.put(url, payload);
+  },
+
+  // fn: xoá 1 admin user
+  delUserAdmin: (userId) => {
+    const url = ADMIN_API_ENDPOINT + '/users/del';
+    return axiosClient.delete(url, { params: { userId } });
+  },
+
   // fn: lấy danh sách khách hàng
   getCustomerList: (page = 1) => {
     const url = ADMIN_API_ENDPOINT + '/customer';

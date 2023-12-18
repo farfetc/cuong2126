@@ -66,7 +66,11 @@ const getDeliveryAddressList = async (req, res, next) => {
         let list = await Promise.all(
           address.list.map(async (item) => {
             let newAddress = await helpers.convertAddress(item.address);
-            return { ...item, address: newAddress };
+            return {
+              ...item,
+              address: newAddress,
+              address_input: item.address || null,
+            };
           }),
         );
         return res.status(200).json({ list: list });
@@ -173,6 +177,45 @@ const putSetDefaultDeliveryAddress = async (req, res, next) => {
   }
 };
 
+// api: cài mặc định 1 địa chỉ nhận hàng
+const putUpdateDeliveryAddress = async (req, res, next) => {
+  try {
+    const { userId, item } = req.query;
+    const deliveryAdd = await DeliveryAddressModel.findOne({
+      user: userId,
+    }).select('list -_id');
+
+    if (deliveryAdd) {
+      const { list } = deliveryAdd;
+      let newList = list.filter((ele, index) => index === parseInt(item));
+      for (let i = 0; i < list.length; ++i) {
+        if (i !== parseInt(item)) newList.push(list[i]);
+      }
+
+      newList = newList.map((_i, ind) => {
+        if (ind === parseInt(item)) {
+          return {
+            ...req.body,
+          };
+        }
+        return {
+          ..._i,
+        };
+      });
+      const response = await DeliveryAddressModel.updateOne(
+        { user: userId },
+        { list: newList },
+      );
+      if (response) return res.status(200).json({ message: 'success' });
+    } else {
+      return res.status(401).json({ message: 'Xoá địa chỉ thất bại' });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(401).json({ message: 'Xoá địa chỉ thất bại' });
+  }
+};
+
 module.exports = {
   getProvince,
   getDistrict,
@@ -181,4 +224,5 @@ module.exports = {
   postAddDeliveryAddress,
   delAddDeliveryAddress,
   putSetDefaultDeliveryAddress,
+  putUpdateDeliveryAddress,
 };

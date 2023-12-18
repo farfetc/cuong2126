@@ -9,6 +9,7 @@ import AddressAddForm from './AddressAddForm';
 function AddressUserList(props) {
   const { isCheckout, onChecked } = props;
   const [isVisibleForm, setIsVisibleForm] = useState(false);
+  const [itemEdit, setItemEdit] = useState({});
   const [list, setList] = useState([]);
   const [activeItem, setActiveItem] = useState(-1);
   const user = useSelector((state) => state.user);
@@ -72,13 +73,23 @@ function AddressUserList(props) {
               )}
             </h3>
 
-            {index !== 0 && !isCheckout && (
-              <div>
+            <div>
+              {index !== 0 && !isCheckout && (
                 <Button
                   type="link"
                   onClick={() => onSetDefaultDeliveryAdd(index)}>
                   Đặt mặc định
                 </Button>
+              )}
+              <Button
+                type="link"
+                onClick={() => {
+                  setItemEdit({ ...item, id: `${index}` });
+                  setTimeout(() => setIsVisibleForm(true), 100);
+                }}>
+                sửa
+              </Button>
+              {index !== 0 && !isCheckout && (
                 <Button
                   danger
                   type="primary"
@@ -86,8 +97,8 @@ function AddressUserList(props) {
                   onClick={() => onDelDeliveryAdd(index)}>
                   Xoá
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <p className="m-b-6">
             <b>Địa chỉ:</b> {item.address}
@@ -137,7 +148,10 @@ function AddressUserList(props) {
               type="dashed"
               size="large"
               className="w-100"
-              onClick={() => setIsVisibleForm(true)}
+              onClick={() => {
+                setItemEdit({});
+                setTimeout(() => setIsVisibleForm(true), 100);
+              }}
               style={{ height: 54 }}>
               <PlusOutlined />
               Thêm địa chỉ
@@ -153,6 +167,7 @@ function AddressUserList(props) {
           )}
           {isVisibleForm && (
             <AddressAddForm
+              item={itemEdit}
               onCloseForm={(addFlag) => {
                 // cở hiệu báo thêm mới địa chỉ thành công để cập nhật lại địa chỉ
                 if (addFlag) setUpdateList(!updateList);

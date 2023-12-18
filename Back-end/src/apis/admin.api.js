@@ -19,6 +19,15 @@ adminApi.post('/login', adminController.postLogin);
 // api: lấy danh sách user admin
 adminApi.get('/users', adminController.getUserAdminList);
 
+// api: tạo mới admin
+adminApi.post('/users', adminController.createUserAdmin);
+
+// api: chỉnh sửa admin
+adminApi.put('/users', adminController.updateUserAdmin);
+
+// api: xoá 1 user admin
+adminApi.delete('/users/del', adminController.delUserAdmin);
+
 // api: lấy danh sách người dùng
 adminApi.get('/customer', adminController.getCustomerList);
 

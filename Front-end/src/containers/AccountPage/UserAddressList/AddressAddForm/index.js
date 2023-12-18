@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 const { Option } = Select;
 
 function AddressAddForm(props) {
-  const { onCloseForm } = props;
+  const { item = {}, onCloseForm } = props;
   const [isVisible, setIsVisible] = useState(true);
   const [provinceList, setProvinceList] = useState([]);
   const [districtList, setDistrictList] = useState([]);
@@ -63,11 +63,35 @@ function AddressAddForm(props) {
   };
 
   // event: thêm địa chỉ
-  const onAddAddress = async (newAddress) => {
+  const onAddOrEditAddress = async (newAddress) => {
+    const { name, phone, ...rest } = newAddress;
+    const sentData = { name, phone, address: { ...rest } };
+    const userId = user._id;
+   
+    // Chỉnh sửa
+    if (item && item.id) {
+      try {
+        const response = await addressApi.updateDeliveryAddress(
+          userId,
+          sentData,
+          item.id
+        );
+        if (response && response.status === 200) {
+          message.success('Chỉnh sửa địa chỉ thành công', 2);
+        }
+      } catch (error) {
+        if (error) {
+          if (error.response) message.error(error.response.data.message, 2);
+          else message.error('Chỉnh sửa địa chỉ thất bại', 2);
+        }
+      }
+      setIsVisible(false);
+      onCloseForm(1);
+      return;
+    }
+
+    // tạo mới
     try {
-      const { name, phone, ...rest } = newAddress;
-      const sentData = { name, phone, address: { ...rest } };
-      const userId = user._id;
       const response = await addressApi.postAddDeliveryAddress(
         userId,
         sentData,
@@ -85,6 +109,38 @@ function AddressAddForm(props) {
     onCloseForm(1);
   };
 
+  useEffect(() => {
+    if (item && item.id) {
+      const province =
+        (item && item.address_input && item.address_input.province) || null;
+      const district =
+        (item && item.address_input && item.address_input.district) || null;
+
+      formRef.current.setFieldValue('name', (item && item.name) || '');
+      formRef.current.setFieldValue('phone', (item && item.phone) || '');
+
+      if (province) {
+        getDistrictList(province);
+        formRef.current.setFieldValue('province', province);
+      }
+      if (district) {
+        getWardStreetList(province, district);
+        formRef.current.setFieldValue('district', district);
+      }
+      formRef.current.setFieldValue(
+        'wards',
+        (item && item.address_input && item.address_input.wards) || '',
+      );
+      formRef.current.setFieldValue(
+        'street',
+        (item && item.address_input && item.address_input.street) || '',
+      );
+      formRef.current.setFieldValue(
+        'details',
+        (item && item.address_input && item.address_input.details) || '',
+      );
+    }
+  }, [item]);
   // rendering ...
   return (
     <Modal
@@ -108,10 +164,10 @@ function AddressAddForm(props) {
           Huỷ bỏ
         </Button>,
         <Button key="submit" type="primary" htmlType="submit" form="form">
-          Thêm địa chỉ
+          {item && item.id ? 'Chỉnh sửa' : 'Thêm địa chỉ'}
         </Button>,
       ]}>
-      <Form onFinish={onAddAddress} ref={formRef} name="form">
+      <Form onFinish={onAddOrEditAddress} ref={formRef} name="form">
         <Row gutter={[32, 0]}>
           <Col span={12}>
             <h3>Thông tin người nhận hàng</h3>

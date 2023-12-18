@@ -82,6 +82,15 @@
   }
 }
 
+.btn-create {
+  background: green;
+  color: #fff;
+  font-weight: bold;
+  height: 40px;
+  border-radius: 4px;
+  margin: 20px;
+}
+
 //width, height 10-100% (w-1 -> w-100)
 @for $i from 0 to 11 {
   .w {

@@ -1,9 +1,21 @@
-import { Table } from 'antd';
+import { Button, message, Table, Popconfirm } from 'antd';
 import adminApi from 'apis/adminApi';
 import React, { useEffect, useState } from 'react';
 
+import ModalCreateEdit from './components/ModalCreateEdit';
+
+import { useLogicAdminUser } from './hooks';
+
 function AdminUser() {
-  const [data, setData] = useState([]);
+  const {
+    data,
+    isVisible,
+    activeItem,
+    setIsVisible,
+    setActiveItem,
+    onDelCustomer,
+    onCreateOrEdit,
+  } = useLogicAdminUser({ data });
 
   const columns = [
     {
@@ -46,33 +58,53 @@ function AdminUser() {
         </a>
       ),
     },
+    {
+      title: '',
+      render: (_v, records) => (
+        <>
+          <Button
+            className="m-r-5"
+            onClick={() => {
+              setActiveItem({ ...records });
+              setIsVisible(true);
+            }}>
+            Chỉnh sửa
+          </Button>
+          <Popconfirm
+            title="Bạn có chắc muốn xoá ?"
+            placement="left"
+            cancelText="Huỷ bỏ"
+            okText="Xoá"
+            onConfirm={() => onDelCustomer(records && records._id)}>
+            <Button danger>Xoá</Button>
+          </Popconfirm>
+        </>
+      ),
+    },
   ];
 
-  // event: Lấy danh sách admin user
-  useEffect(() => {
-    let isSubscribe = true;
+  return (
+    <React.Fragment>
+      <div className="d-flex justify-content-end">
+        <Button
+          className="btn-create"
+          onClick={() => {
+            setIsVisible(true);
+            setActiveItem({});
+          }}>
+          Tạo Mới +
+        </Button>
+      </div>
+      <Table pagination={false} columns={columns} dataSource={data} />
 
-    async function getUserAdminList() {
-      try {
-        const response = await adminApi.getUserAdminList();
-        if (response && isSubscribe) {
-          const list = response.data.list;
-          const listWittKey = list.map((item, index) => {
-            return { ...item, key: index };
-          });
-          setData(listWittKey);
-        }
-      } catch (error) {}
-    }
-
-    getUserAdminList();
-
-    return () => {
-      isSubscribe = false;
-    };
-  }, []);
-
-  return <Table pagination={false} columns={columns} dataSource={data} />;
+      <ModalCreateEdit
+        open={isVisible}
+        activeItem={activeItem}
+        handleClose={setIsVisible}
+        onCreateOrEdit={onCreateOrEdit}
+      />
+    </React.Fragment>
+  );
 }
 
 export default AdminUser;

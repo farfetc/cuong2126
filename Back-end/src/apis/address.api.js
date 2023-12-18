@@ -16,10 +16,14 @@ addressApi.get('/delivery', addressController.getDeliveryAddressList);
 // api: Thêm địa chỉ nhận hàng
 addressApi.post('/delivery', addressController.postAddDeliveryAddress);
 
+// api: Chỉnh sửa 1 địa chỉ nhận hàng
+addressApi.put('/update-delivery', addressController.putUpdateDeliveryAddress);
+
 // api: Xoá 1 địa chỉ nhận hàng
 addressApi.delete('/delivery', addressController.delAddDeliveryAddress);
 
 // api: cài mặc định 1 địa chỉ nhận hàng
 addressApi.put('/delivery', addressController.putSetDefaultDeliveryAddress);
+
 
 module.exports = addressApi;
